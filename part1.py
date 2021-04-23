@@ -14,7 +14,7 @@ def min_temperature(a,b):
     else:
         return a
 
-temperatures_csv = sc.texfile('<filepath>/temperature-readings.csv')
+temperatures_csv = sc.texfile('BDA/input_data/temperature-readings.csv')
 lines = temperatures_csv.map(lambda line: line.split(';'))
 year_temperature = lines.map(lambda x: (x[1][0:4], float(x[3])))
 
@@ -27,4 +27,4 @@ min_temp = year_temperature.reduceByKey(min_temperature)
 max_temp_sorted = max_temp.sortBy(ascending = False, keyfunc=lambda k: k[1])
 min_temp_sorted = max_temp.sortBy(ascending = False, keyfunc=lambda k: k[1])
 
-max_temp_sorted.saveAsTextFile("<filepath>/output")
+max_temp_sorted.saveAsTextFile("BDA/output")
