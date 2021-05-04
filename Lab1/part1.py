@@ -35,3 +35,4 @@ min_temp_sorted.coalesce(1, shuffle = False).saveAsTextFile("BDA/output/min")
 
 # sbatch -A liu-compute-2021-4 --reservation liu-bda-2021-04-XX run_yarn_with_historyserver.q
 # squeue -u x_filis
+

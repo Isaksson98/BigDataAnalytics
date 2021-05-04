@@ -1,6 +1,6 @@
 from pyspark import SparkContext
 
-sc = SparkContext(appName = "temperature lab part 4")
+sc = SparkContext(appName = "temperature lab part 5")
 
 def max_value(a,b):
     if a>=b:
@@ -8,24 +8,26 @@ def max_value(a,b):
     else:
         return b
 
-
 # This path is to the file on hdfs
 stationsOstGot_csv = sc.textFile("BDA/input/stations-Ostergotland.csv")
 precipitation_csv = sc.textFile("BDA/input/precipitation-readings.csv")
 
-lines_stations = stationsOstGot_csv.map(lambda line: line.split(";"))
-lines_precip = temperatures_csv.map(lambda line: line.split(";"))
+lines_stations_ostGot = stationsOstGot_csv.map(lambda line: line.split(";"))
+lines_precip = precipitation_csv.map(lambda line: line.split(";"))
 
-#remove rain data not included in Ostergotland
-lines_tot = lines_stations.join(lines_precip, lines_temp[0] == lines_precip[0],"leftouter")
 
-# (key, value) = (year,rain)
-temperature_rain = lines_tot.map(lambda x: (x[3][0:4], x[5])))
+# (key, value) = ((station, year-month)),(rain,1))
+rain_ostGot = lines_stations_ostGot.map(lambda x: ((x[0], x[1][0:7]), (float(x[3]), 1))) #Adding 1 for counting when averaging
+
+# (key, value) =  ((station, year-month)),(rain,1))
+rain_tot = lines_precip.map(lambda x: ((x[0], x[1][0:7]), (float(x[3]), 1)))
+
+rain_tot = rain_tot.filter(lambda x: x[0][0] in rain_ostGot)
 
 #Filter the years
-year_temperature = year_temperature.filter(lambda x: int(x[0])>= 1993 and int(x[0])<=2016)
+rain_tot = rain_tot.filter(lambda x: int(x[0])>= 1993 and int(x[0])<=2016)
 
-year_temperature = year_temperature.collect()
-month_avg = year_temperature.groupByKey('months').avg()
+#Calculate average
+month_avg = rain_tot.reduceByKey(lambda a,b: a+b).mapValues(lambda x: x[0]/x[1])
 
-month_avg.coalesce(1, shuffle = False).saveAsTextFile("BDA/output/part5/")
+month_avg.coalesce(1, shuffle = False).saveAsTextFile("BDA/output/")
