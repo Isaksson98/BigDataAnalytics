@@ -13,7 +13,7 @@ lines_precip = precipitation_csv.map(lambda line: line.split(";"))
 # Collect() allows all the elements in the RDD to be returned
 rain_ostGot = lines_stations_ostGot.map( lambda x: x[0] ).collect()
 # (key, value) =  ((station, year-month)),(rain,1))
-rain_tot = lines_precip.map(lambda x: ((x[0], x[1][0:7]), (float(x[3]), 1))) #Adding 1 for counting when averaging
+rain_tot = lines_precip.map(lambda x: ((x[0], x[1][0:7]), (float(x[3]))))
 
 #Select only stations in OsterGotland
 rain_tot = rain_tot.filter( lambda x: x[0][0] in rain_ostGot )
@@ -25,8 +25,17 @@ rain_tot = rain_tot.filter( lambda x: x[0][0] in rain_ostGot )
 #Filter the years
 rain_tot = rain_tot.filter(lambda x: int(x[0][1][0:4])>= 1993 and int(x[0][1][0:4])<=2016)
 
-#Calculate average
-month_avg = rain_tot.reduceByKey(lambda a,b: a+b).mapValues(lambda x: x[0]/x[1])
+#sum the total monthly precipitation for each station
+sum_month = rain_tot.reduceByKey(lambda a,b: a+b)
+
+print(13579)
+print( sum_month.collect()[0] )
+
+sum_month = sum_month.map(lambda x: (x[0][1], (float(x[1]), 1)))
+
+
+#Calculate average over stations for a given month
+month_avg = sum_month.reduceByKey(lambda a,b: a+b).mapValues(lambda x: x[0]/x[1])
 
 #Sort
 month_avg = month_avg.sortBy(ascending = False, keyfunc=lambda k: k[1])
