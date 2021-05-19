@@ -31,7 +31,7 @@ SchemaOstGotRain = SchemaOstGotRain.filter\
 #sum the total monthly precipitation for each station
 SchemaOstGotRain = SchemaOstGotRain.groupBy('year', 'month', 'id').sum('precipitation')
 SchemaOstGotRain = SchemaOstGotRain.groupBy('year', 'month').agg(F.avg('sum(precipitation)'))\
-.orderBy('avg(sum(precipitation))', ascending=False)
+.orderBy( ['year', 'month'], ascending=False)
 
 
 SchemaOstGotRain.rdd.coalesce(1).saveAsTextFile("BDA/output/")

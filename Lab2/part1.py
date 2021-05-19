@@ -20,11 +20,11 @@ schemaTempReadings = schemaTempReadings.filter( (schemaTempReadings['year']>= 19
 
 #max_temp = year_temperature.reduceByKey(max_temperature)
 max_temp = schemaTempReadings.groupBy('year').agg(F.max("temperature"))\
-.orderBy(['year', 'max(temperature)'],ascending=[0,1])
+.orderBy('max(temperature)', ascending=False)
 
 #min_temp = year_temperature.reduceByKey(min_temperature)
 min_temp = schemaTempReadings.groupBy('year').agg(F.min("temperature"))\
-.orderBy(['year', 'min(temperature)'],ascending=[1,0])
+.orderBy('min(temperature)',ascending=False)
 
 max_temp.rdd.coalesce(1).saveAsTextFile("BDA/output/max")
 min_temp.rdd.coalesce(1).saveAsTextFile("BDA/output/min")

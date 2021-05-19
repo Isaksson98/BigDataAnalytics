@@ -3,16 +3,17 @@ from pyspark import SparkContext
 sc = SparkContext(appName = "temperature lab part 1")
 
 def max_temperature(a,b):
-    if a>=b:
-        return a
+    if a[1]>=b[1]:
+        return (a[0], a[1])
     else:
-        return b
+        return (b[0], b[1])
 
 def min_temperature(a,b):
-    if a>=b:
-        return b
+    if a[1]>=b[1]:
+        return (b[0], b[1])
     else:
-        return a
+        return (a[0], a[1])
+        
 # This path is to the file on hdfs
 temperatures_csv = sc.textFile("BDA/input/temperature-readings.csv")
 lines = temperatures_csv.map(lambda line: line.split(";"))
